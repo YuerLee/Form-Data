@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer')();
 const http = require('http').Server(app);
 
-app.use( (req, res, next) => {
+app.use((req, res, next) => {
   const contentType = req.headers['content-type'] || '';
   const mime = contentType.split(';')[0];
 
@@ -14,7 +14,7 @@ app.use( (req, res, next) => {
   let data = '';
   req.setEncoding('utf8');
 
-  req.on('data', (chunk) => {
+  req.on('data', chunk => {
     data += chunk;
   });
 
@@ -25,17 +25,19 @@ app.use( (req, res, next) => {
   next();
 });
 
-app.use(bodyParser.urlencoded({
-  extended: false,
-  verify:  (req, res, buf, encoding) => {
-    if (buf && buf.length) {
-      req.rawBody = buf.toString(encoding || 'utf8');
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+    verify: (req, res, buf, encoding) => {
+      if (buf && buf.length) {
+        req.rawBody = buf.toString(encoding || 'utf8');
+      }
     }
-  }
-}));
+  })
+);
 
 app.all('*', multer.none(), (req, res) => {
-	res.status(200).json({
+  res.status(200).json({
     'request-headers': req.headers,
     'request-query-data': req.query || {},
     'request-body-data': req.body || {},
@@ -43,6 +45,6 @@ app.all('*', multer.none(), (req, res) => {
   });
 });
 
-http.listen(65432, function(){
-	console.log('listening on http://localhost:65432');
+http.listen(65432, () => {
+  console.log('listening on http://localhost:65432');
 });
