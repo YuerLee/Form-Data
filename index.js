@@ -7,28 +7,29 @@ app.use((req, res, next) => {
   const contentType = req.headers['content-type'] || '';
   const mime = contentType.split(';')[0];
 
-  if (mime != 'multipart/form-data') {
-    return next();
+  if (mime === 'multipart/form-data') {
+    let data = '';
+    req.setEncoding('utf8');
+
+    req.on('data', chunk => {
+      data += chunk;
+    });
+
+    req.on('end', () => {
+      req.rawBody = data;
+    });
   }
-
-  let data = '';
-  req.setEncoding('utf8');
-
-  req.on('data', chunk => {
-    data += chunk;
-  });
-
-  req.on('end', () => {
-    req.rawBody = data;
-  });
 
   next();
 });
+
+app.use(bodyParser.json());
 
 app.use(
   bodyParser.urlencoded({
     extended: false,
     verify: (req, res, buf, encoding) => {
+      console.log('next');
       if (buf && buf.length) {
         req.rawBody = buf.toString(encoding || 'utf8');
       }
